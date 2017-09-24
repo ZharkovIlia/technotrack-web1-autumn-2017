@@ -5,7 +5,8 @@ import pathlib
 import functools
 
 realPathToResources = pathlib.Path(os.path.dirname(__file__)) / "../files/"
-requestedPathToResources = b'/media'
+requestedPathToResources    = b'/media'
+requestedPathToTest         = b'/test'
 
 
 def get_response(request):
@@ -22,7 +23,8 @@ def get_response(request):
     except ValueError:
         return get_bad_request()
 
-    return get_page_with_resources(GET_statement_parts[1], request_header_map)
+    return get_page_with_resources(GET_statement_parts[1], request_header_map,
+                                   initial_request = request)
 
 
 def get_page_not_found():
@@ -33,7 +35,7 @@ def get_bad_request():
     return b'HTTP/1.1 400 Bad Request\r\n\r\n400 Bad Request'
 
 
-def get_page_with_resources(request_resource, request_header_map):
+def get_page_with_resources(request_resource, request_header_map, initial_request):
     if request_resource == b'/':
         response = b'HTTP/1.1 200 Ok\r\n\r\nHello mister!\r\n' + \
             b'You are ' + request_header_map.get(b'User-Agent', b'Anonymous')
@@ -63,6 +65,9 @@ def get_page_with_resources(request_resource, request_header_map):
 
         else:
             response = get_page_not_found()
+
+    elif request_resource == b'/test' or request_resource == b'/test/':
+        return b'HTTP/1.1 200 Ok\r\n\r\n' + initial_request
 
     else:
         response = get_page_not_found()
